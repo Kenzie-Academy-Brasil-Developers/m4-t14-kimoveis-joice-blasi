@@ -20,14 +20,7 @@ const createPropertyReturnSchema = z.object({
     category: createCategoryReturnSchema
 });
 
-const createPropertyWithoutAddress = createPropertySchema.omit({ address: true });
-
-const allPropertiesSchema = createPropertyReturnSchema.array();
-
-
 export {
     createPropertySchema,
-    createPropertyReturnSchema,
-    createPropertyWithoutAddress,
-    allPropertiesSchema
+    createPropertyReturnSchema
 }

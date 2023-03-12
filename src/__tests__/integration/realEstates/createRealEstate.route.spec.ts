@@ -154,7 +154,7 @@ describe('POST /realEstate', () => {
         },
       },
     };
-    console.log(response.body)
+
     expect(response.status).toBe(expectResults.status);
     expect(response.body).toStrictEqual(expectResults.expectBody);
   });

@@ -1,5 +1,15 @@
 import { getRounds, hashSync } from 'bcryptjs';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+    DeleteDateColumn,
+    BeforeInsert,
+    BeforeUpdate,
+    OneToMany
+} from 'typeorm';
 import { Schedule } from './schedules.entity';
 
 @Entity('users')

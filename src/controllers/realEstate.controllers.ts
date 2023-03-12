@@ -9,7 +9,7 @@ const createPropertyController = async (request: Request, response: Response): P
     return response.status(201).json(newProperty);
 }
 
-const readPropertiesController = async (request: Request, response: Response) => {
+const readPropertiesController = async (request: Request, response: Response): Promise<Response> => {
     const allProperties = await readPropertiesService();
     return response.json(allProperties);
 }

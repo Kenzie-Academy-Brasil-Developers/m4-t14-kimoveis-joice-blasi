@@ -1,4 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+    OneToOne,
+    JoinColumn,
+    ManyToOne,
+    OneToMany
+} from 'typeorm';
 import { Address } from './addresses.entity';
 import { Category } from './categories.entity';
 import { Schedule } from './schedules.entity';
@@ -31,7 +41,7 @@ class RealEstate {
     category: Category;
 
     @OneToMany(() => Schedule, schedules => schedules.realEstate)
-    schedule: Schedule[]
+    schedules: Schedule[]
 }
 
 export { RealEstate };

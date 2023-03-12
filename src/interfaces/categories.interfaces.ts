@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { allCategoriesSchema, categoryIdSchema, createCategoryReturnSchema, createCategorySchema } from '../schemas/categories.schemas';
+import {
+    allCategoriesSchema,
+    categoryIdSchema,
+    createCategoryReturnSchema,
+    createCategorySchema
+} from '../schemas/categories.schemas';
 
 type tCategoryRequest = z.infer<typeof createCategorySchema>;
 

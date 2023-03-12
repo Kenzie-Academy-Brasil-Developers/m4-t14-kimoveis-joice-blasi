@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { createCategoryController, readCategoriesController, readRealEstateByCategoryController } from '../controllers/categories.controllers';
+import {
+    createCategoryController,
+    readCategoriesController,
+    readRealEstateByCategoryController
+} from '../controllers/categories.controllers';
 import ensureNameIsValidMiddleware from '../middlewares/categories/ensureNameIsValid.middleware';
 import ensureDataIsValidMiddleware from '../middlewares/users/ensureDataIsValid.middleware';
 import ensureIsAdminMiddleware from '../middlewares/validateToken/ensureIsAdmin.middleware';

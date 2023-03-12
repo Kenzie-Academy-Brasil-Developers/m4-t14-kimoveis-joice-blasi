@@ -1,5 +1,8 @@
 import { Router } from 'express';
-import { createScheduleController, readSchedulesByRealEstateController } from '../controllers/schedules.controllers';
+import {
+    createScheduleController,
+    readSchedulesByRealEstateController
+} from '../controllers/schedules.controllers';
 import ensureDataIsValidMiddleware from '../middlewares/users/ensureDataIsValid.middleware';
 import ensureIsAdminMiddleware from '../middlewares/validateToken/ensureIsAdmin.middleware';
 import ensureTokenIsValidMiddleware from '../middlewares/validateToken/ensureTokenIsValid.middleware';
