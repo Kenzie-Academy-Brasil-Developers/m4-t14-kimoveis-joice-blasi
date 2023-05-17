@@ -1,127 +1,820 @@
-# 🏁 Projeto Final: KImóveis - TypeORM com Relacionamentos
+# Documentação da API
 
-Para inciar este projeto, é necessário instalar as dependências, que serão utilizadas nos testes. Portanto utilize o comando abaixo para instalar tais dependências:
+## Tabela de Conteúdos
 
-```bash
-# caso use npm
-npm run i
+- [Visão Geral](#1-visão-geral)
+- [Diagrama ER](#2-diagrama-er)
+- [Início Rápido](#3-início-rápido)
+  - [Instalando Dependências](#31-instalando-dependências)
+  - [Variáveis de Ambiente](#32-variáveis-de-ambiente)
+  - [Migrations](#33-migrations)
+- [Autenticação](#4-autenticação)
+- [Endpoints](#5-endpoints)
 
-# caso use yarn
+---
+
+## 1. Visão Geral
+
+O objetivo do projeto é desenvolver um serviço Back-End para gerenciar uma imobiliária, seus usuários, imóveis e visitas. Tecnologias utilizadas:
+
+- [TypeScript](https://www.typescriptlang.org/)
+- [NodeJS](https://nodejs.org/en/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Express](https://expressjs.com/pt-br/)
+- [TypeORM](https://typeorm.io/)
+- [Zod](https://zod.dev/)
+- [JsonWebToken](https://www.npmjs.com/package/jsonwebtoken)
+- [Dotenv](https://www.npmjs.com/package/dotenv)
+- [Yup](https://www.npmjs.com/package/yup)
+
+A URL base da aplicação:
+http://localhost:3000
+
+---
+
+## 2. Diagrama ER
+
+[ Voltar para o topo ](#tabela-de-conteúdos)
+
+Diagrama de Entidade e Relacionamentos da API definindo bem as relações entre as tabelas do banco de dados.
+
+![DER](der-kimoveis.png)
+
+---
+
+## 3. Início Rápido
+
+[ Voltar para o topo ](#tabela-de-conteúdos)
+
+### 3.1. Instalando Dependências
+
+Clone o projeto em sua máquina e instale as dependências com o comando:
+
+```shell
 yarn
 ```
 
-## Instalação
+### 3.2. Variáveis de Ambiente
 
-Apenas as bibliotecas de teste, ou que os testes dependem, estão no **package.json**. Por isso, instale as dependências do projeto manualmente e não se esqueça de inicia-lo também.
+Em seguida, crie um arquivo **.env**, copiando o formato do arquivo **.env.example**:
 
-```bash
-# caso use npm
-npm init -y
-
-# caso use yarn
-yarn init -y
+```
+cp .env.example .env
 ```
 
-## Dependências dos testes
+Configure suas variáveis de ambiente com suas credenciais do Postgres e uma nova database da sua escolha.
 
-Para que os testes funcionem corretamente, existem algumas dependências.
+### 3.3. Migrations
 
-* O `app` tem que ser exportado como **default** em **src/app.ts**. Exemplo:
+Execute as migrations com o comando:
 
-```ts
-export default app
+```
+yarn typeorm migration:run -d src/data-source.ts
 ```
 
-* O `AppDataSource` tem que ser exportado em **src/data-source.ts**. Exemplo:
+---
 
-```ts
-export { AppDataSource }
+## 4. Autenticação
 
-// ou
+[ Voltar para o topo ](#tabela-de-conteúdos)
 
-export const AppDataSource = new DataSource(dataSourceConfig());
+### 4.1. **Login**
+
+O objeto Login é definido como:
+
+| Campo    | Tipo   | Descrição                    |
+| -------- | ------ | ---------------------------- |
+| email    | string | O e-mail do usuário.         |
+| password | string | A senha de acesso do usuário |
+
+### Endpoint
+
+| Método | Rota   | Descrição            |
+| ------ | ------ | -------------------- |
+| POST   | /login | Login de um usuário. |
+
+### Exemplo de Request:
+
+```
+POST /login
+Host: http://localhost:3000/login
+Authorization: None
+Content-type: application/json
 ```
 
-* As Entities **tem que ter os respectivos nomes** e **tem que ter a exportação centralizada** em **entities/index.ts**. Exemplo:
+### Corpo da Requisição:
 
-```ts
-import { Address } from './<arquivo>';
-import { Category } from './<arquivo>';
-import { RealEstate } from './<arquivo>';
-import { Schedule } from './<arquivo>';
-import { User } from './<arquivo>';
-
-export { Address, RealEstate, Category, User, Schedule };
+```json
+{
+  "email": "maria@email.com",
+  "password": "1234"
+}
 ```
 
-## Sobre os testes
+### Schema de validação com Zod:
 
-Essa aplicação possui testes, que serão utilizados para validar, se todas as regras de negócio foram aplicadas de maneira correta.
-
-Os testes estão localizados em `src/__tests__`.
-
-Na subpasta `integration` estão os testes.
-
-Já na subpasta `mocks` estão os dados que serão utilizados para os testes.
-
-No arquivo `jest.config.ts` estão algumas configurações necessárias para os testes rodarem.
-
-**`De modo algum altere qualquer um desses arquivos.`** Isso poderá comprometer a integridade dos testes.
-
-E também não altere o script de `test` localizado no `package.json`. Isso será utilizado para rodar os testes.
-
-## Rodando os testes
-
-Para rodar os testes é necessário que no seu terminal, você esteja dentro do diretório do projeto.
-
-Estando no terminal e dentro do caminho correto, você poderá utilizar os comandos a seguir:
-
-### Rodar todos os testes
-
-```bash
-# caso use npm
-npm run test
-
-# caso use yarn
-yarn test
+```javascript
+email: z.string().email(),
+password: z.string()
 ```
 
-### Rodar todos os testes e ter um log ainda mais completo
+OBS.: Chaves não presentes no schema serão removidas.
 
-```bash
-# caso use npm
-npm run test --all
+### Exemplos de Response:
 
-# caso use yarn
-yarn test --all
+```
+200 OK
 ```
 
-### Rodar os testes de uma pasta específica
-
-> detalhe: repare que tests está envolvido por 2 underlines. Isso se chama ***dunder***.
-
-```bash
-# caso use npm
-npm run test <subpasta>
-
-# caso use yarn
-yarn test <subpasta>
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaWF0IjoxNjg0MzQ3NzMyLCJleHAiOjE2ODQ0MzQxMzIsInN1YiI6IjEifQ.Ab2eer3E3gBv6uTWmyXQbSeqy5QkpcLHZ00BUI-FC0c"
+}
 ```
 
-### Rodar os testes de um arquivo específico
+### Possíveis erros:
 
-```bash
-# caso use npm
-npm run test <subpasta>/<arquivo>
+| Código do Erro   | Descrição            |
+| ---------------- | -------------------- |
+| 401 Unauthorized | Invalid credentials. |
 
-# caso use yarn
-yarn test <subpasta>/<arquivo>
+---
+
+## 5. Endpoints
+
+[ Voltar para o topo ](#tabela-de-conteúdos)
+
+### Índice
+
+- [Users](#1-users)
+  - [POST - /users](#11-criação-de-usuário)
+  - [GET - /users](#12-listando-usuários)
+  - [PATCH - /users/:id](#13-editar-usuário-por-id)
+  - [DELETE - /users/:id](#14-soft-delete-em-usuário-por-id)
+- [RealEstates](#2-realestates)
+  - [POST - /realEstate](#21-criação-de-imóvel)
+- [Categories](#3-categories)
+  - [POST - /categories](#31-crição-de-categoria)
+  - [GET - /categories](#32-listando-categorias)
+  - [GET - /categories/:id/realEstate](#33-listando-imóveis-de-uma-categoria)
+- [Schedules](#4-schedules)
+  - [POST - /schedules](#41-criação-de-visita)
+  - [GET - /schedules/realEstate/:id](#42-listando-agendamentos-de-um-imóvel)
+
+---
+
+## 1. **Users**
+
+[ Voltar para os Endpoints ](#5-endpoints)
+
+O objeto User é definido como:
+
+| Campo     | Tipo    | Descrição                                    |
+| --------- | ------- | -------------------------------------------- |
+| id        | string  | Identificador único do usuário.              |
+| name      | string  | O nome do usuário.                           |
+| email     | string  | O e-mail do usuário.                         |
+| password  | string  | A senha de acesso do usuário.                |
+| admin     | boolean | Define se um usuário é Administrador ou não. |
+| createdAt | string  | Data de criação do usuário.                  |
+| updatedAt | string  | Data de atualização do usuário.              |
+| deletedAt | string  | Data de deleção do usuário.                  |
+
+### Endpoints
+
+| Método | Rota       | Descrição                                                       |
+| ------ | ---------- | --------------------------------------------------------------- |
+| POST   | /users     | Criação de um usuário.                                          |
+| GET    | /users     | Lista todos os usuários.                                        |
+| PATCH  | /users/:id | Atualiza um usuário usando seu ID como parâmetro.               |
+| DELETE | /users/:id | Realiza um soft delete no usuário usando seu ID como parâmetro. |
+
+---
+
+### 1.1. **Criação de Usuário**
+
+[ Voltar para os Endpoints ](#5-endpoints)
+
+### `/users`
+
+### Exemplo de Request:
+
+```
+POST /users
+Host: http://localhost:3000/users
+Authorization: None
+Content-type: application/json
 ```
 
-**Caso você queira verificar todas as opções de execução de testes, visite a [Documentação oficial do Jest](https://jestjs.io/docs/cli)**
+### Corpo da Requisição:
 
-Após rodar um dos comandos aparecerá um log no seu terminal, contendo as informações da execução do teste.
+```json
+{
+  "name": "maria",
+  "email": "maria@email.com",
+  "admin": false,
+  "password": "1234"
+}
+```
 
-**Observação:** O teste pode demorar alguns segundos para ser finalizado. Quanto maior for o teste, mais tempo será consumido para a execução.
+### Schema de Validação com Zod:
 
-### Agora que já sabe como iniciar o seu projeto e rodar os testes, é hora de colocar a mão no código
+```javascript
+name: z.string().min(3).max(45),
+email: z.string().max(45).email(),
+admin: z.boolean().optional().default(false),
+password: z.string().max(20)
+```
+
+OBS.: Chaves não presentes no schema serão removidas.
+
+### Exemplo de Response:
+
+```
+201 Created
+```
+
+```json
+{
+  "id": 2,
+  "name": "maria",
+  "email": "maria@email.com",
+  "admin": false,
+  "createdAt": "2023-05-17",
+  "updatedAt": "2023-05-17",
+  "deletedAt": null
+}
+```
+
+### Possíveis Erros:
+
+| Código do Erro | Descrição                 |
+| -------------- | ------------------------- |
+| 409 Conflict   | Email already registered. |
+
+---
+
+### 1.2. **Listando Usuários**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/users`
+
+Utilizar token de usuário admin.
+
+### Exemplo de Request:
+
+```
+GET /users
+Host: http://localhost:3000/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaWF0IjoxNjg0MzQ5OTc1LCJleHAiOjE2ODQ0MzYzNzUsInN1YiI6IjMifQ.K0nrSeDcchK_QcsfBw_4VTwR5stp1fcXTHlWF2h8FZg
+Content-type: application/json
+```
+
+### Corpo da Requisição:
+
+```json
+Vazio
+```
+
+### Exemplo de Response:
+
+```
+200 OK
+```
+
+```json
+[
+  {
+    "id": 1,
+    "name": "joice",
+    "email": "joice@email.com",
+    "admin": true,
+    "createdAt": "2023-03-10",
+    "updatedAt": "2023-03-10",
+    "deletedAt": null
+  },
+  {
+    "id": 2,
+    "name": "maria",
+    "email": "maria@email.com",
+    "admin": false,
+    "createdAt": "2023-05-17",
+    "updatedAt": "2023-05-17",
+    "deletedAt": null
+  }
+]
+```
+
+### Possíveis Erros:
+
+| Código do Erro | Descrição                |
+| -------------- | ------------------------ |
+| 403 Forbidden  | Insufficient permission. |
+
+---
+
+### 1.3. **Editar usuário por id**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/users/:id`
+
+Não é possível atualizar os campos de id e admin. Administradores podem atualizar qualquer usuário, usuários não-administradores podem atualizar apenas seu próprio usuário.
+
+### Exemplo de Request:
+
+```
+PATCH /users/:id
+Host: http://localhost:3000/users/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsImlhdCI6MTY4NDM1MDI4MywiZXhwIjoxNjg0NDM2NjgzLCJzdWIiOiIyIn0.cTX_RtLY4XnGs46mSJSC1RXCmJdRTu5z5d3n1B2FqnQ
+Content-type: application/json
+```
+
+### Parâmetros da Requisição:
+
+| Parâmetro | Tipo   | Descrição                             |
+| --------- | ------ | ------------------------------------- |
+| id        | string | Identificador único do usuário (User) |
+
+### Corpo da Requisição:
+
+```json
+{
+  "name": "maria s"
+}
+```
+
+### Schema de Validação com Zod:
+
+```javascript
+name?: z.string().min(3).max(45),
+email?: z.string().max(45).email(),
+admin?: z.boolean().optional().default(false),
+password?: z.string().max(20)
+```
+
+OBS.: Chaves não presentes no schema serão removidas.
+
+### Exemplo de Response:
+
+```
+200 OK
+```
+
+```json
+{
+  "id": 2,
+  "name": "maria s",
+  "email": "maria@email.com",
+  "admin": false,
+  "createdAt": "2023-05-17",
+  "updatedAt": "2023-05-17",
+  "deletedAt": null
+}
+```
+
+### Possíveis Erros:
+
+| Código do Erro   | Descrição                |
+| ---------------- | ------------------------ |
+| 401 Unauthorized | Missing bearer token.    |
+| 403 Forbidden    | Insufficient permission. |
+| 404 Not Found    | User not found.          |
+| 409 Conflict     | Email already exists.    |
+
+### 1.4. **Soft-delete em usuário por id**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/users/:id`
+
+Rota acessada somente por administradores.
+
+### Exemplo de Request:
+
+```
+DELETE /users/:id
+Host: http://localhost:3000/users/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsImlhdCI6MTY4NDM1MDI4MywiZXhwIjoxNjg0NDM2NjgzLCJzdWIiOiIyIn0.cTX_RtLY4XnGs46mSJSC1RXCmJdRTu5z5d3n1B2FqnQ
+Content-type: application/json
+```
+
+### Parâmetros da Requisição:
+
+| Parâmetro | Tipo   | Descrição                             |
+| --------- | ------ | ------------------------------------- |
+| id        | string | Identificador único do usuário (User) |
+
+### Corpo da Requisição:
+
+```json
+Vazio
+```
+
+### Exemplo de Response:
+
+```
+204 No Content
+```
+
+```json
+Vazio
+```
+
+### Possíveis Erros:
+
+| Código do Erro   | Descrição                |
+| ---------------- | ------------------------ |
+| 401 Unauthorized | Missing bearer token.    |
+| 403 Forbidden    | Insufficient permission. |
+| 404 Not Found    | User not found.          |
+
+### 2.1. **Criação de imóvel**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/realEstate`
+
+Rota acessada somente por administradores.
+
+### Exemplo de Request:
+
+```
+POST /realEstate
+Host: http://localhost:3000/realEstate
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsImlhdCI6MTY4NDM1MDI4MywiZXhwIjoxNjg0NDM2NjgzLCJzdWIiOiIyIn0.cTX_RtLY4XnGs46mSJSC1RXCmJdRTu5z5d3n1B2FqnQ
+Content-type: application/json
+```
+
+### Corpo da Requisição:
+
+```json
+{
+  "value": 1000800.5,
+  "size": 879,
+  "address": {
+    "street": "Rua das Laranjeiras",
+    "zipCode": "12345678",
+    "city": "Nápoles",
+    "state": "SP",
+    "number": "12"
+  },
+  "categoryId": 1
+}
+```
+
+### Schema de Validação com Zod:
+
+```javascript
+value: z.string().regex(/\d+/).transform(Number).refine((value) => value >= 0).or(z.number().positive()),
+size: z.number().positive(),
+address: {
+    street: z.string().max(45),
+    zipCode: z.string().max(8),
+    number: z.string().max(7).optional().nullable(),
+    city: z.string().max(20),
+    state: z.string().max(2)
+},
+categoryId: z.number()
+```
+
+OBS.: Chaves não presentes no schema serão removidas.
+
+### Exemplo de Response:
+
+```
+201 Created
+```
+
+```json
+{
+  "id": 2,
+  "value": 1000800.5,
+  "size": 879,
+  "sold": false,
+  "createdAt": "2023-05-17",
+  "updatedAt": "2023-05-17",
+  "address": {
+    "street": "Rua das Laranjeiras",
+    "zipCode": "12345678",
+    "number": "12",
+    "city": "Nápoles",
+    "state": "SP",
+    "id": 2
+  },
+  "category": {
+    "name": "Apartamento",
+    "id": 1
+  }
+}
+```
+
+### Possíveis Erros:
+
+| Código do Erro   | Descrição                |
+| ---------------- | ------------------------ |
+| 401 Unauthorized | Missing bearer token.    |
+| 403 Forbidden    | Insufficient permission. |
+| 404 Not Found    | User not found.          |
+| 409 Conflict     | Address already exists.  |
+| 404 Not Found    | Category not found.      |
+
+### 3.1. **Crição de categoria**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/categories`
+
+Rota acessada somente por administradores.
+
+### Exemplo de Request:
+
+```
+POST /categories
+Host: http://localhost:3000/categories
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsImlhdCI6MTY4NDM1MDI4MywiZXhwIjoxNjg0NDM2NjgzLCJzdWIiOiIyIn0.cTX_RtLY4XnGs46mSJSC1RXCmJdRTu5z5d3n1B2FqnQ
+Content-type: application/json
+```
+
+### Corpo da Requisição:
+
+```json
+{
+  "name": "Apartamento"
+}
+```
+
+### Schema de Validação com Zod:
+
+```javascript
+name: z.string();
+```
+
+OBS.: Chaves não presentes no schema serão removidas.
+
+### Exemplo de Response:
+
+```
+201 Created
+```
+
+```json
+{
+  "id": 1,
+  "name": "Apartamento"
+}
+```
+
+### Possíveis Erros:
+
+| Código do Erro   | Descrição                |
+| ---------------- | ------------------------ |
+| 401 Unauthorized | Missing bearer token.    |
+| 403 Forbidden    | Insufficient permission. |
+| 409 Conflict     | Category already exists. |
+
+### 3.2. **Listando categorias**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/categories`
+
+### Exemplo de Request:
+
+```
+GET /categories
+Host: http://localhost:3000/categories
+Authorization: None
+Content-type: application/json
+```
+
+### Corpo da Requisição:
+
+```json
+Vazio
+```
+
+### Exemplo de Response:
+
+```
+200 OK
+```
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Apartamento"
+  }
+]
+```
+
+### Possíveis Erros:
+
+Nenhum erro, mas poderá retornar um array vazio caso não exista nenhuma categoria.
+
+### 3.3. **Listando imóveis de uma categoria**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/categories/:id/realEstate`
+
+### Exemplo de Request:
+
+```
+GET /categories/:id/realEstate
+Host: http://localhost:3000/categories/1/realEstate
+Authorization: None
+Content-type: application/json
+```
+
+### Parâmetros da Requisição:
+
+| Parâmetro | Tipo   | Descrição                                   |
+| --------- | ------ | ------------------------------------------- |
+| id        | string | Identificador único da categoria (Category) |
+
+### Corpo da Requisição:
+
+```json
+Vazio
+```
+
+### Exemplo de Response:
+
+```
+200 OK
+```
+
+```json
+{
+  "id": 1,
+  "name": "Apartamento",
+  "realEstate": [
+    {
+      "id": 1,
+      "sold": false,
+      "value": "1000800.50",
+      "size": 879,
+      "createdAt": "2023-03-10",
+      "updatedAt": "2023-03-10"
+    },
+    {
+      "id": 2,
+      "sold": false,
+      "value": "1000800.50",
+      "size": 879,
+      "createdAt": "2023-05-17",
+      "updatedAt": "2023-05-17"
+    }
+  ]
+}
+```
+
+### Possíveis Erros:
+
+| Código do Erro | Descrição           |
+| -------------- | ------------------- |
+| 404 Not Found  | Category not found. |
+
+### 4.1. **Criação de visita**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/schedules`
+
+### Exemplo de Request:
+
+```
+POST /schedules
+Host: http://localhost:3000/realEstate
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsImlhdCI6MTY4NDM1MDI4MywiZXhwIjoxNjg0NDM2NjgzLCJzdWIiOiIyIn0.cTX_RtLY4XnGs46mSJSC1RXCmJdRTu5z5d3n1B2FqnQ
+Content-type: application/json
+```
+
+### Corpo da Requisição:
+
+```json
+{
+  "date": "2023/06/06",
+  "hour": "13:30",
+  "realEstateId": 1
+}
+```
+
+### Schema de Validação com Zod:
+
+```javascript
+date: z.string(),
+hour: z.string(),
+realEstateId: z.number()
+```
+
+OBS.: Chaves não presentes no schema serão removidas.
+
+### Exemplo de Response:
+
+```
+201 Created
+```
+
+```json
+{
+  "message": "Schedule created"
+}
+```
+
+### Possíveis Erros:
+
+| Código do Erro   | Descrição                                                               |
+| ---------------- | ----------------------------------------------------------------------- |
+| 400 Bad Request  | Invalid date, work days are monday to friday.                           |
+| 400 Bad Request  | Invalid hour, available times are 8AM to 18PM.                          |
+| 401 Unauthorized | Missing bearer token.                                                   |
+| 404 Not Found    | RealEstate not found.                                                   |
+| 409 Conflict     | Schedule to this real estate at this date and time already exists.      |
+| 409 Conflict     | User schedule to this real estate at this date and time already exists. |
+
+### 4.2. **Listando agendamentos de um imóvel**
+
+[ Voltar aos Endpoints ](#5-endpoints)
+
+### `/schedules/realEstate/:id`
+
+Rota acessada apenas por administradores.
+
+### Exemplo de Request:
+
+```
+GET /schedules/realEstate/:id
+Host: http://localhost:3000/schedules/realEstate/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsImlhdCI6MTY4NDM1MDI4MywiZXhwIjoxNjg0NDM2NjgzLCJzdWIiOiIyIn0.cTX_RtLY4XnGs46mSJSC1RXCmJdRTu5z5d3n1B2FqnQ
+Content-type: application/json
+```
+
+### Parâmetros da Requisição:
+
+| Parâmetro | Tipo   | Descrição                                  |
+| --------- | ------ | ------------------------------------------ |
+| id        | string | Identificador único do imóvel (RealEstate) |
+
+### Corpo da Requisição:
+
+```json
+Vazio
+```
+
+### Exemplo de Response:
+
+```
+200 OK
+```
+
+```json
+{
+  "id": 1,
+  "sold": false,
+  "value": "1000800.50",
+  "size": 879,
+  "createdAt": "2023-03-10",
+  "updatedAt": "2023-03-10",
+  "address": {
+    "id": 1,
+    "street": "Rua 22",
+    "zipCode": "12345678",
+    "number": "23",
+    "city": "Nápoles",
+    "state": "SP"
+  },
+  "category": {
+    "id": 1,
+    "name": "Apartamento"
+  },
+  "schedules": [
+    {
+      "id": 3,
+      "date": "2023-06-06",
+      "hour": "13:30:00",
+      "user": {
+        "id": 1,
+        "name": "joice",
+        "email": "joice@email.com",
+        "admin": true,
+        "password": "$2a$10$bppG26feaxR942GJyqSpVuulSkPDrDEM38cRlUhgmPCQTrwwPeYai",
+        "createdAt": "2023-03-10",
+        "updatedAt": "2023-03-10",
+        "deletedAt": null
+      }
+    }
+  ]
+}
+```
+
+### Possíveis Erros:
+
+| Código do Erro   | Descrição                |
+| ---------------- | ------------------------ |
+| 401 Unauthorized | Missing bearer token.    |
+| 403 Forbidden    | Insufficient permission. |
+| 404 Not Found    | RealEstate not found.    |

@@ -8,9 +8,6 @@ import { tPropertyRequest } from '../../interfaces/realEstate.interfaces';
 const ensureAddressIsValidMiddleware = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     const addressRepository: Repository<Address> = AppDataSource.getRepository(Address);
     const addressData: tPropertyRequest = request.body;
-    if (!addressData.address) {
-        throw new AppError('falta endereço', 400)
-    }
     const findAddress = await addressRepository.findOne({
         where: {
             street: addressData.address.street,
